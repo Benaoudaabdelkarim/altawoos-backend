@@ -23,12 +23,12 @@ class RealestateController extends Controller
     public function index()
     {
         return RealestateResource::collection(Realestate::orderBy('created_at', 'DESC')
-                ->paginate(30));
+            ->paginate(30));
     }
     public function getRealestateForGuest()
     {
         return RealestateResource::collection(Realestate::orderBy('created_at', 'DESC')
-                ->paginate(30));
+            ->paginate(30));
     }
     public function getFeatered()
     {
@@ -54,13 +54,20 @@ class RealestateController extends Controller
     {
         $data = $request->validated();
 
-        // Check if image was given and save on local file system
-        if (isset($data['image'])) {
-            $relativePath  = $this->saveImage($data['image']);
-            $data['image'] = $relativePath;
-        }
+        //return $data;
 
-        //$path = $data['image']->store('images/products');
+        $images = array();
+
+        // Check if image was given and save on local file system
+        if (isset($data['images']))
+            foreach ($data['images'] as $image)
+                $images[] =  $image->store('public/images');
+
+        // if (isset($data['images']))
+        //     foreach ($data['images'] as $image)
+        //         $images[] = $this->saveImage($image);
+
+        $data['images'] = $images;
 
         $realestate = Realestate::create($data);
 
@@ -75,11 +82,6 @@ class RealestateController extends Controller
      */
     public function show(Realestate $realestate)
     {
-        $user = $request->user();
-        if ($user->id !== $realestate->user_id) {
-            return abort(403, 'Unauthorized action.');
-        }
-
         return new RealestateResource($realestate);
     }
 
@@ -134,56 +136,11 @@ class RealestateController extends Controller
      * @param  \App\Models\Realestate  $realestate
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Realestate $realestate)
+    public function destroy($id)
     {
-        $user = $request->user();
-        if ($user->id !== $realestate->user_id) {
-            return abort(403, 'Unauthorized action.');
-        }
-
+        //return $realestate;
+        $realestate = Realestate::find($id);
         $realestate->delete();
-
-        // If there is an old image, delete it
-        if ($realestate->image) {
-            $absolutePath = public_path($realestate->image);
-            File::delete($absolutePath);
-        }
-
-        return response('', 204);
-    }
-
-    private function saveImage($image)
-    {
-        // Check if image is valid base64 string
-        if (preg_match('/^data:image\/(\w+);base64,/', $image, $type)) {
-            // Take out the base64 encoded text without mime type
-            $image = substr($image, strpos($image, ',') + 1);
-            // Get file extension
-            $type = strtolower($type[1]); // jpg, png, gif
-
-            // Check if file is an image
-            if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
-                throw new \Exception('invalid image type');
-            }
-            $image = str_replace(' ', '+', $image);
-            $image = base64_decode($image);
-
-            if ($image === false) {
-                throw new \Exception('base64_decode failed');
-            }
-        } else {
-            throw new \Exception('did not match data URI with image data');
-        }
-
-        $dir = 'images/';
-        $file = Str::random() . '.' . $type;
-        $absolutePath = public_path($dir);
-        $relativePath = $dir . $file;
-        if (!File::exists($absolutePath)) {
-            File::makeDirectory($absolutePath, 0755, true);
-        }
-        file_put_contents($relativePath, $image);
-
-        return $relativePath;
+        return response('deleted', 204);
     }
 }
