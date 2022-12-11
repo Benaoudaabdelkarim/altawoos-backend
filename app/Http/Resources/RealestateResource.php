@@ -3,6 +3,8 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
+
 class RealestateResource extends JsonResource
 {
     /**
@@ -15,7 +17,7 @@ class RealestateResource extends JsonResource
     {
         $images = array();
         foreach($this->images as $image)
-            $images[] = url($image);
+            $images[] = url(Storage::url($image));
 
         return [
             'id' => $this->id,

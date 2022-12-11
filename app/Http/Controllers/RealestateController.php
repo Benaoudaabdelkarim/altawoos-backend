@@ -7,11 +7,6 @@ use App\Http\Requests\StoreRealestateRequest;
 use App\Http\Requests\UpdateRealestateRequest;
 use App\Http\Resources\RealestateResource;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class RealestateController extends Controller
 {
@@ -62,10 +57,6 @@ class RealestateController extends Controller
         if (isset($data['images']))
             foreach ($data['images'] as $image)
                 $images[] =  $image->store('public/images');
-
-        // if (isset($data['images']))
-        //     foreach ($data['images'] as $image)
-        //         $images[] = $this->saveImage($image);
 
         $data['images'] = $images;
 

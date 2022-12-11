@@ -20,7 +20,7 @@ Route::post('/auth/register', [AuthController::class, 'register']);
 
 Route::get('/product/guest', [RealestateController::class, 'getRealestateForGuest']);
 Route::get('/product/featred', [RealestateController::class, 'getFeatered']);
-Route::get('/product/details/guest/{id}', [RealestateController::class, 'showForGuest']);
+Route::get('/product/details/guest/{realestate}', [RealestateController::class, 'showForGuest']);//this one
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/plugin', [AuthController::class, 'pluginToken']);
